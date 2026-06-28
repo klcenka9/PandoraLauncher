@@ -163,6 +163,39 @@ class SocketService {
     this.socket?.on('user:status:changed', callback)
   }
 
+  // Direct Message events
+  sendDM(receiverId: string, content: string) {
+    this.socket?.emit('dm:send', { receiverId, content })
+  }
+
+  onDMNew(callback: (data: any) => void) {
+    this.socket?.on('dm:new', callback)
+  }
+
+  sendDMTyping(receiverId: string) {
+    this.socket?.emit('dm:typing', { receiverId })
+  }
+
+  stopDMTyping(receiverId: string) {
+    this.socket?.emit('dm:typing:stop', { receiverId })
+  }
+
+  onDMTyping(callback: (data: any) => void) {
+    this.socket?.on('dm:typing', callback)
+  }
+
+  onDMTypingStop(callback: (data: any) => void) {
+    this.socket?.on('dm:typing:stop', callback)
+  }
+
+  markDMAsRead(fromUserId: string) {
+    this.socket?.emit('dm:read', { fromUserId })
+  }
+
+  onDMReadAck(callback: (data: any) => void) {
+    this.socket?.on('dm:read:ack', callback)
+  }
+
   // Remove event listener
   off(event: string) {
     this.socket?.off(event)

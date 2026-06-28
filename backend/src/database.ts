@@ -84,6 +84,8 @@ export async function initializeDatabase() {
       receiver_id TEXT NOT NULL,
       content TEXT NOT NULL,
       read BOOLEAN DEFAULT 0,
+      edited_at DATETIME,
+      deleted BOOLEAN DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (sender_id) REFERENCES users(id),
       FOREIGN KEY (receiver_id) REFERENCES users(id)

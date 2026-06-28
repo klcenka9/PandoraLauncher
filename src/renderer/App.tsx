@@ -3,16 +3,25 @@ import './App.css'
 import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
 import CallWindow from './components/CallWindow'
+import DMWindow from './components/DMWindow'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import { socketService } from './services/socket'
 
-type View = 'chat' | 'call'
+type View = 'chat' | 'call' | 'dm'
 type AuthView = 'login' | 'register' | null
+
+interface User {
+  id: string
+  username: string
+  status: string
+  avatar?: string
+}
 
 export default function App() {
   const [currentView, setCurrentView] = useState<View>('chat')
   const [selectedChannel, setSelectedChannel] = useState('general')
+  const [selectedDMUser, setSelectedDMUser] = useState<User | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [authView, setAuthView] = useState<AuthView>('login')
   const [username, setUsername] = useState('')
@@ -95,11 +104,22 @@ export default function App() {
         onLogout={handleLogout}
         token={token}
         userId={userId}
+        onSelectDMUser={(user) => {
+          setSelectedDMUser(user)
+          setCurrentView('dm')
+        }}
       />
       {currentView === 'chat' ? (
         <ChatWindow channelName={selectedChannel} isConnected={isConnected} />
-      ) : (
+      ) : currentView === 'call' ? (
         <CallWindow isConnected={isConnected} />
+      ) : (
+        <DMWindow
+          selectedUser={selectedDMUser}
+          currentUserId={userId}
+          token={token}
+          isConnected={isConnected}
+        />
       )}
       {!isConnected && <div className="connection-status">Připojuji se...</div>}
     </div>

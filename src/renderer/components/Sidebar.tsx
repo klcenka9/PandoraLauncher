@@ -3,13 +3,21 @@ import './Sidebar.css'
 import FriendsList from './FriendsList'
 import UserBrowser from './UserBrowser'
 
+interface User {
+  id: string
+  username: string
+  status: string
+  avatar?: string
+}
+
 interface SidebarProps {
   onSelectChannel: (channel: string) => void
-  onViewChange: (view: 'chat' | 'call') => void
+  onViewChange: (view: 'chat' | 'call' | 'dm') => void
   username: string
   onLogout: () => void
   token: string
   userId: string
+  onSelectDMUser: (user: User) => void
 }
 
 type SidebarView = 'channels' | 'friends' | 'users'
@@ -21,9 +29,14 @@ export default function Sidebar({
   onLogout,
   token,
   userId,
+  onSelectDMUser,
 }: SidebarProps) {
   const [sidebarView, setSidebarView] = useState<SidebarView>('channels')
   const channels = ['general', 'random', 'announcements', 'support']
+
+  const handleSelectFriend = (friend: User) => {
+    onSelectDMUser(friend)
+  }
 
   return (
     <div className="sidebar">
@@ -82,7 +95,9 @@ export default function Sidebar({
         </div>
       )}
 
-      {sidebarView === 'friends' && <FriendsList token={token} />}
+      {sidebarView === 'friends' && (
+        <FriendsList token={token} onSelectFriend={handleSelectFriend} />
+      )}
 
       {sidebarView === 'users' && <UserBrowser token={token} currentUserId={userId} />}
 

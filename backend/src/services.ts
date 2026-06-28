@@ -22,13 +22,16 @@ export async function createVoiceChannel(
 }
 
 // ===== Direct Messages =====
-export async function getDMConversation(userId: string, targetUserId: string) {
+export async function getDMConversation(userId: string, targetUserId: string, limit = 50) {
   const db = getDatabase()
   return await db.all(
     `SELECT * FROM direct_messages
-     WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
-     ORDER BY created_at`,
-    [userId, targetUserId, targetUserId, userId]
+     WHERE deleted = 0 AND (
+       (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+     )
+     ORDER BY created_at DESC
+     LIMIT ?`,
+    [userId, targetUserId, targetUserId, userId, limit]
   )
 }
 
@@ -43,23 +46,103 @@ export async function sendDirectMessage(
     'INSERT INTO direct_messages (id, sender_id, receiver_id, content) VALUES (?, ?, ?, ?)',
     [id, senderId, receiverId, content]
   )
-  return { id, senderId, receiverId, content, read: false }
+  return {
+    id,
+    senderId,
+    receiverId,
+    content,
+    read: false,
+    created_at: new Date().toISOString()
+  }
 }
 
 export async function getUnreadDMs(userId: string) {
   const db = getDatabase()
-  return await db.all(
-    'SELECT DISTINCT sender_id FROM direct_messages WHERE receiver_id = ? AND read = 0',
+  const unreadConversations = await db.all(
+    `SELECT DISTINCT sender_id as userId, COUNT(*) as unreadCount
+     FROM direct_messages
+     WHERE receiver_id = ? AND read = 0 AND deleted = 0
+     GROUP BY sender_id`,
     [userId]
   )
+  return unreadConversations
 }
 
 export async function markDMAsRead(senderId: string, receiverId: string) {
   const db = getDatabase()
   await db.run(
-    'UPDATE direct_messages SET read = 1 WHERE sender_id = ? AND receiver_id = ?',
+    'UPDATE direct_messages SET read = 1 WHERE sender_id = ? AND receiver_id = ? AND deleted = 0',
     [senderId, receiverId]
   )
+  return { success: true }
+}
+
+export async function editDirectMessage(messageId: string, userId: string, newContent: string) {
+  const db = getDatabase()
+  const message = await db.get(
+    'SELECT * FROM direct_messages WHERE id = ? AND sender_id = ? AND deleted = 0',
+    [messageId, userId]
+  )
+
+  if (!message) {
+    return { success: false, error: 'Zpráva nebyla nalezena nebo nemáš práva' }
+  }
+
+  await db.run(
+    'UPDATE direct_messages SET content = ?, edited_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [newContent, messageId]
+  )
+
+  return { success: true, messageId, content: newContent }
+}
+
+export async function deleteDirectMessage(messageId: string, userId: string) {
+  const db = getDatabase()
+  const message = await db.get(
+    'SELECT * FROM direct_messages WHERE id = ? AND sender_id = ? AND deleted = 0',
+    [messageId, userId]
+  )
+
+  if (!message) {
+    return { success: false, error: 'Zpráva nebyla nalezena nebo nemáš práva' }
+  }
+
+  await db.run('UPDATE direct_messages SET deleted = 1 WHERE id = ?', [messageId])
+
+  return { success: true }
+}
+
+export async function getDMList(userId: string) {
+  const db = getDatabase()
+  const conversations = await db.all(
+    `SELECT DISTINCT
+      CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END as other_user_id,
+      MAX(created_at) as last_message_at,
+      COUNT(CASE WHEN receiver_id = ? AND read = 0 THEN 1 END) as unread_count
+     FROM direct_messages
+     WHERE deleted = 0 AND (sender_id = ? OR receiver_id = ?)
+     GROUP BY CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END
+     ORDER BY last_message_at DESC`,
+    [userId, userId, userId, userId, userId]
+  )
+
+  // Načtení info o uživatelích
+  const result = await Promise.all(
+    conversations.map(async (conv: any) => {
+      const otherUser = await db.get(
+        'SELECT id, username, status, avatar FROM users WHERE id = ?',
+        [conv.other_user_id]
+      )
+      return {
+        userId: conv.other_user_id,
+        user: otherUser,
+        unreadCount: conv.unread_count,
+        lastMessageAt: conv.last_message_at
+      }
+    })
+  )
+
+  return result
 }
 
 // ===== Message Reactions =====

@@ -171,6 +171,7 @@ export default function FriendsList({ token, onSelectFriend }: FriendsListProps)
               key={friend.id}
               className="friend-item"
               onClick={() => onSelectFriend?.(friend)}
+              style={{ cursor: onSelectFriend ? 'pointer' : 'default' }}
             >
               <div className="friend-info">
                 <div className="avatar-wrapper">

@@ -31,6 +31,9 @@ import {
   unblockUser,
   getBlockedUsers,
   isUserBlocked,
+  editDirectMessage,
+  deleteDirectMessage,
+  getDMList,
 } from './services'
 
 const app = express()
@@ -179,6 +182,59 @@ app.put('/api/users/profile', authMiddleware, async (req: AuthenticatedRequest, 
   const { username, avatar, bio } = req.body
   await updateUserProfile(req.userId!, { username, avatar, bio })
   res.json({ success: true, message: 'Profil aktualizován' })
+})
+
+// ===== Direct Messages Routes =====
+app.get('/api/dm/list', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const conversations = await getDMList(req.userId!)
+  res.json({ success: true, conversations })
+})
+
+app.get('/api/dm/:targetUserId', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { targetUserId } = req.params
+  const messages = await getDMConversation(req.userId!, targetUserId)
+  res.json({ success: true, messages })
+})
+
+app.post('/api/dm/:targetUserId', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { targetUserId } = req.params
+  const { content } = req.body
+
+  if (!content || !content.trim()) {
+    return res.status(400).json({ success: false, message: 'Zpráva nesmí být prázdná' })
+  }
+
+  const blocked = await isUserBlocked(targetUserId, req.userId!)
+  if (blocked) {
+    return res.status(403).json({ success: false, message: 'Tento uživatel tě zablokoval' })
+  }
+
+  const message = await sendDirectMessage(req.userId!, targetUserId, content.trim())
+  res.status(201).json({ success: true, message })
+})
+
+app.put('/api/dm/:messageId', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { messageId } = req.params
+  const { content } = req.body
+
+  if (!content || !content.trim()) {
+    return res.status(400).json({ success: false, message: 'Zpráva nesmí být prázdná' })
+  }
+
+  const result = await editDirectMessage(messageId, req.userId!, content.trim())
+  res.status(result.success ? 200 : 403).json(result)
+})
+
+app.delete('/api/dm/:messageId', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { messageId } = req.params
+  const result = await deleteDirectMessage(messageId, req.userId!)
+  res.status(result.success ? 200 : 403).json(result)
+})
+
+app.post('/api/dm/:senderId/read', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { senderId } = req.params
+  await markDMAsRead(senderId, req.userId!)
+  res.json({ success: true })
 })
 
 app.get('/api/channels', (req, res) => {
@@ -357,6 +413,38 @@ io.on('connection', (socket) => {
     io.emit('user:status:changed', {
       userId: socket.data.userId,
       status,
+    })
+  })
+
+  // Direct Message events
+  socket.on('dm:send', (data) => {
+    const { receiverId, content } = data
+    io.emit('dm:new', {
+      senderId: socket.data.userId,
+      receiverId,
+      content,
+      created_at: new Date().toISOString(),
+    })
+  })
+
+  socket.on('dm:typing', (data) => {
+    const { receiverId } = data
+    io.to(receiverId).emit('dm:typing', {
+      fromUserId: socket.data.userId,
+    })
+  })
+
+  socket.on('dm:typing:stop', (data) => {
+    const { receiverId } = data
+    io.to(receiverId).emit('dm:typing:stop', {
+      fromUserId: socket.data.userId,
+    })
+  })
+
+  socket.on('dm:read', (data) => {
+    const { fromUserId } = data
+    io.to(fromUserId).emit('dm:read:ack', {
+      fromUserId: socket.data.userId,
     })
   })
 
