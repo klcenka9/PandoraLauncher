@@ -130,6 +130,39 @@ class SocketService {
     this.socket?.on('user:typing', callback)
   }
 
+  // Friend events
+  sendFriendRequest(targetUserId: string) {
+    this.socket?.emit('friend:request', { targetUserId })
+  }
+
+  onFriendRequest(callback: (data: any) => void) {
+    this.socket?.on('friend:request:received', callback)
+  }
+
+  acceptFriend(requesterId: string) {
+    this.socket?.emit('friend:accept', { requesterId })
+  }
+
+  onFriendAccepted(callback: (data: any) => void) {
+    this.socket?.on('friend:accepted', callback)
+  }
+
+  removeFriend(friendId: string) {
+    this.socket?.emit('friend:remove', { friendId })
+  }
+
+  onFriendRemoved(callback: (data: any) => void) {
+    this.socket?.on('friend:removed', callback)
+  }
+
+  updateStatus(status: string) {
+    this.socket?.emit('user:status:update', { status })
+  }
+
+  onStatusUpdate(callback: (data: any) => void) {
+    this.socket?.on('user:status:changed', callback)
+  }
+
   // Remove event listener
   off(event: string) {
     this.socket?.off(event)

@@ -16,15 +16,20 @@ export default function App() {
   const [isConnected, setIsConnected] = useState(false)
   const [authView, setAuthView] = useState<AuthView>('login')
   const [username, setUsername] = useState('')
+  const [token, setToken] = useState('')
+  const [userId, setUserId] = useState('')
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken')
+    const savedToken = localStorage.getItem('authToken')
     const savedUsername = localStorage.getItem('username')
+    const savedUserId = localStorage.getItem('userId')
 
-    if (token && savedUsername) {
+    if (savedToken && savedUsername && savedUserId) {
       setUsername(savedUsername)
+      setToken(savedToken)
+      setUserId(savedUserId)
       setAuthView(null)
-      connectSocket(token, savedUsername)
+      connectSocket(savedToken, savedUsername)
     }
   }, [])
 
@@ -41,10 +46,13 @@ export default function App() {
     })
   }
 
-  const handleLoginSuccess = (token: string, user: string) => {
+  const handleLoginSuccess = (token: string, user: string, id: string) => {
     localStorage.setItem('authToken', token)
     localStorage.setItem('username', user)
+    localStorage.setItem('userId', id)
     setUsername(user)
+    setToken(token)
+    setUserId(id)
     setAuthView(null)
     connectSocket(token, user)
   }
@@ -52,7 +60,10 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem('authToken')
     localStorage.removeItem('username')
+    localStorage.removeItem('userId')
     setUsername('')
+    setToken('')
+    setUserId('')
     setAuthView('login')
     socketService.disconnect()
   }
@@ -82,6 +93,8 @@ export default function App() {
         onViewChange={setCurrentView}
         username={username}
         onLogout={handleLogout}
+        token={token}
+        userId={userId}
       />
       {currentView === 'chat' ? (
         <ChatWindow channelName={selectedChannel} isConnected={isConnected} />

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import '../styles/AuthPage.css'
 
 interface RegisterPageProps {
-  onRegisterSuccess: (token: string, username: string) => void
+  onRegisterSuccess: (token: string, username: string, userId: string) => void
   onSwitchToLogin: () => void
 }
 
@@ -50,7 +50,7 @@ export default function RegisterPage({
       const data = await response.json()
 
       if (data.success) {
-        onRegisterSuccess(data.token, data.user.username)
+        onRegisterSuccess(data.token, data.user.username, data.user.id)
       } else {
         setError(data.message || 'Chyba při registraci')
       }

@@ -26,6 +26,36 @@
   border-bottom: 1px solid #202225;
 }
 
+.sidebar-tabs {
+  display: flex;
+  gap: 5px;
+  padding: 0 10px 10px 10px;
+  border-bottom: 1px solid #202225;
+}
+
+.tab-btn {
+  flex: 1;
+  background-color: #40444b;
+  border: 1px solid #202225;
+  color: #b9bbbe;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  background-color: #4d5156;
+  color: #dcddde;
+}
+
+.tab-btn.active {
+  background-color: #7289da;
+  color: white;
+  border-color: #7289da;
+}
+
 .nav-btn {
   flex: 1;
   background-color: #7289da;
