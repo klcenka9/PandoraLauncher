@@ -7,3 +7,7 @@ build/
 .env.local
 .env.*.local
 out/
+*.js
+*.js.map
+package-lock.json
+backend/package-lock.json

@@ -19,9 +19,10 @@ win:
   certificatePassword: null
   signingHashAlgorithms:
     - sha256
+  sign: null
   target:
-    - nsis
     - portable
+    - nsis
 
 nsis:
   oneClick: false
