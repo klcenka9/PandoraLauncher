@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import './CallWindow.css'
+import { webrtcService } from '../services/webrtc'
+import { socketService } from '../services/socket'
 
-interface CallWindowProps {}
+interface CallWindowProps {
+  isConnected: boolean
+}
 
-export default function CallWindow({}: CallWindowProps) {
+export default function CallWindow({ isConnected }: CallWindowProps) {
   const [isCallActive, setIsCallActive] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [isScreenSharing, setIsScreenSharing] = useState(false)
@@ -29,10 +33,7 @@ export default function CallWindow({}: CallWindowProps) {
 
   const handleStartCall = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: { width: 1280, height: 720 },
-      })
+      const stream = await webrtcService.getLocalStream(true, true)
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream
       }
@@ -45,10 +46,9 @@ export default function CallWindow({}: CallWindowProps) {
   }
 
   const handleEndCall = () => {
-    if (localVideoRef.current && localVideoRef.current.srcObject) {
-      const tracks = (localVideoRef.current.srcObject as MediaStream).getTracks()
-      tracks.forEach((track) => track.stop())
-    }
+    webrtcService.stopLocalStream()
+    webrtcService.closeAllConnections()
+    socketService.endCall()
     setIsCallActive(false)
     setCallDuration(0)
     setIsScreenSharing(false)

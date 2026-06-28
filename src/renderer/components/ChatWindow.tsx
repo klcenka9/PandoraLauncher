@@ -1,43 +1,60 @@
 import React, { useState, useRef, useEffect } from 'react'
 import './ChatWindow.css'
+import { socketService } from '../services/socket'
 
 interface Message {
   id: string
   author: string
   content: string
   timestamp: Date
+  channel: string
 }
 
 interface ChatWindowProps {
   channelName: string
+  isConnected: boolean
 }
 
-export default function ChatWindow({ channelName }: ChatWindowProps) {
+export default function ChatWindow({ channelName, isConnected }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       author: 'System',
       content: 'Welcome to #' + channelName,
       timestamp: new Date(),
+      channel: channelName,
     },
   ])
   const [inputValue, setInputValue] = useState('')
+  const [username, setUsername] = useState('You')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setUsername('User' + Math.floor(Math.random() * 10000))
+  }, [])
+
+  useEffect(() => {
+    socketService.onMessageNew((message: Message) => {
+      if (message.channel === channelName) {
+        setMessages((prev) => [...prev, message])
+      }
+    })
+
+    return () => {
+      socketService.off('message:new')
+    }
+  }, [channelName])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
   const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        author: 'You',
-        content: inputValue,
-        timestamp: new Date(),
-      }
-      setMessages([...messages, newMessage])
+    if (inputValue.trim() && isConnected) {
+      socketService.sendMessage(channelName, inputValue, username)
       setInputValue('')
+    } else if (!isConnected) {
+      alert('Not connected to server')
     }
   }
 
