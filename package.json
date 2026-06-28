@@ -1,0 +1,35 @@
+{
+  "name": "pandora-launcher",
+  "version": "0.1.0",
+  "description": "Discord-like desktop application with calling, messaging, and screen sharing",
+  "main": "src/main/main.ts",
+  "homepage": "./",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-dev",
+    "build": "tsc && electron-builder",
+    "start": "electron .",
+    "react-dev": "vite",
+    "react-build": "vite build",
+    "electron-dev": "concurrently \"npm run react-dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "socket.io-client": "^4.7.2",
+    "webrtc-adapter": "^8.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.7",
+    "wait-on": "^7.0.1"
+  }
+}

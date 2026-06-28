@@ -1,0 +1,31 @@
+appId: com.pandoralauncher.app
+productName: Pandora Launcher
+directories:
+  buildResources: assets
+  output: dist
+
+files:
+  - from: .
+    to: .
+    filter:
+      - package.json
+      - node_modules
+      - src/main
+      - dist
+      - index.html
+
+win:
+  certificateFile: null
+  certificatePassword: null
+  signingHashAlgorithms:
+    - sha256
+  target:
+    - nsis
+    - portable
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Pandora Launcher
