@@ -6,7 +6,11 @@ import CallWindow from './components/CallWindow'
 import DMWindow from './components/DMWindow'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ToastContainer from './components/ToastContainer'
+import SearchBox from './components/SearchBox'
+import Settings from './components/Settings'
 import { socketService } from './services/socket'
+import { notificationService } from './services/notifications'
 
 type View = 'chat' | 'call' | 'dm'
 type AuthView = 'login' | 'register' | null
@@ -27,8 +31,13 @@ export default function App() {
   const [username, setUsername] = useState('')
   const [token, setToken] = useState('')
   const [userId, setUserId] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
+    // Init notifications
+    notificationService.requestNotificationPermission()
+
     const savedToken = localStorage.getItem('authToken')
     const savedUsername = localStorage.getItem('username')
     const savedUserId = localStorage.getItem('userId')
@@ -97,6 +106,8 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <ToastContainer />
+
       <Sidebar
         onSelectChannel={setSelectedChannel}
         onViewChange={setCurrentView}
@@ -108,7 +119,10 @@ export default function App() {
           setSelectedDMUser(user)
           setCurrentView('dm')
         }}
+        onSearch={() => setShowSearch(true)}
+        onSettings={() => setShowSettings(true)}
       />
+
       {currentView === 'chat' ? (
         <ChatWindow channelName={selectedChannel} isConnected={isConnected} />
       ) : currentView === 'call' ? (
@@ -121,6 +135,13 @@ export default function App() {
           isConnected={isConnected}
         />
       )}
+
+      {showSearch && (
+        <SearchBox token={token} onClose={() => setShowSearch(false)} />
+      )}
+
+      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
+
       {!isConnected && <div className="connection-status">Připojuji se...</div>}
     </div>
   )

@@ -438,3 +438,68 @@ export async function isUserBlocked(userId: string, targetUserId: string): Promi
 
   return !!blocked
 }
+
+// ===== Message Search =====
+export async function searchMessages(
+  userId: string,
+  query: string,
+  channel?: string,
+  limit = 50
+) {
+  const db = getDatabase()
+
+  let sql = `
+    SELECT * FROM messages
+    WHERE author_id = ? AND content LIKE ? AND deleted = 0
+  `
+  const params: any[] = [userId, `%${query}%`]
+
+  if (channel) {
+    sql += ` AND channel = ?`
+    params.push(channel)
+  }
+
+  sql += ` ORDER BY created_at DESC LIMIT ?`
+  params.push(limit)
+
+  return await db.all(sql, params)
+}
+
+export async function searchDMs(
+  userId: string,
+  query: string,
+  targetUserId?: string,
+  limit = 50
+) {
+  const db = getDatabase()
+
+  let sql = `
+    SELECT * FROM direct_messages
+    WHERE deleted = 0 AND content LIKE ?
+    AND ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+  `
+  const params = [
+    `%${query}%`,
+    userId,
+    targetUserId || '%',
+    targetUserId || '%',
+    userId,
+  ]
+
+  sql += ` ORDER BY created_at DESC LIMIT ?`
+  params.push(limit)
+
+  return await db.all(sql, params)
+}
+
+export async function searchUsers(query: string, limit = 20) {
+  const db = getDatabase()
+
+  return await db.all(
+    `SELECT id, username, status, avatar FROM users
+     WHERE username LIKE ? AND deleted = 0
+     ORDER BY username
+     LIMIT ?`,
+    [`%${query}%`, limit]
+  )
+}

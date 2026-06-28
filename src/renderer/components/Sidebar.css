@@ -108,6 +108,27 @@
   background-color: #2f3136;
   align-items: center;
   position: relative;
+  flex-wrap: wrap;
+}
+
+.user-actions {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: #72767d;
+  cursor: pointer;
+  padding: 5px;
+  transition: color 0.2s;
+  font-size: 16px;
+}
+
+.action-btn:hover {
+  color: #dcddde;
 }
 
 .user-avatar {

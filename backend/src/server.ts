@@ -34,6 +34,9 @@ import {
   editDirectMessage,
   deleteDirectMessage,
   getDMList,
+  searchMessages,
+  searchDMs,
+  searchUsers,
 } from './services'
 
 const app = express()
@@ -182,6 +185,48 @@ app.put('/api/users/profile', authMiddleware, async (req: AuthenticatedRequest, 
   const { username, avatar, bio } = req.body
   await updateUserProfile(req.userId!, { username, avatar, bio })
   res.json({ success: true, message: 'Profil aktualizován' })
+})
+
+// ===== Search Routes =====
+app.get('/api/search/messages', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { q, channel } = req.query
+
+  if (!q || typeof q !== 'string') {
+    return res.status(400).json({ success: false, message: 'Dotaz je povinný' })
+  }
+
+  const results = await searchMessages(
+    req.userId!,
+    q,
+    typeof channel === 'string' ? channel : undefined
+  )
+  res.json({ success: true, results })
+})
+
+app.get('/api/search/dms', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { q, userId } = req.query
+
+  if (!q || typeof q !== 'string') {
+    return res.status(400).json({ success: false, message: 'Dotaz je povinný' })
+  }
+
+  const results = await searchDMs(
+    req.userId!,
+    q,
+    typeof userId === 'string' ? userId : undefined
+  )
+  res.json({ success: true, results })
+})
+
+app.get('/api/search/users', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  const { q } = req.query
+
+  if (!q || typeof q !== 'string') {
+    return res.status(400).json({ success: false, message: 'Dotaz je povinný' })
+  }
+
+  const results = await searchUsers(q)
+  res.json({ success: true, results })
 })
 
 // ===== Direct Messages Routes =====

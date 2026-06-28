@@ -18,6 +18,8 @@ interface SidebarProps {
   token: string
   userId: string
   onSelectDMUser: (user: User) => void
+  onSearch: () => void
+  onSettings: () => void
 }
 
 type SidebarView = 'channels' | 'friends' | 'users'
@@ -30,6 +32,8 @@ export default function Sidebar({
   token,
   userId,
   onSelectDMUser,
+  onSearch,
+  onSettings,
 }: SidebarProps) {
   const [sidebarView, setSidebarView] = useState<SidebarView>('channels')
   const channels = ['general', 'random', 'announcements', 'support']
@@ -107,9 +111,17 @@ export default function Sidebar({
           <p className="username">{username}</p>
           <p className="status">Online</p>
         </div>
-        <button className="logout-btn" onClick={onLogout} title="Odhlásit se">
-          🚪
-        </button>
+        <div className="user-actions">
+          <button className="action-btn" onClick={onSearch} title="Hledat">
+            🔍
+          </button>
+          <button className="action-btn" onClick={onSettings} title="Nastavení">
+            ⚙️
+          </button>
+          <button className="logout-btn" onClick={onLogout} title="Odhlásit se">
+            🚪
+          </button>
+        </div>
       </div>
     </div>
   )
