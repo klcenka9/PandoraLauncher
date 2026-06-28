@@ -3,6 +3,9 @@ import { Server as SocketIOServer } from 'socket.io'
 import cors from 'cors'
 import http from 'http'
 import { v4 as uuidv4 } from 'uuid'
+import { initializeDatabase } from './database'
+import { registerUser, loginUser, verifyToken, setUserStatus, getUserById } from './auth'
+import { authMiddleware, AuthenticatedRequest } from './middleware'
 
 const app = express()
 const server = http.createServer(app)
@@ -30,7 +33,57 @@ channels.forEach((channel) => {
 
 // REST API endpoints
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running' })
+  res.json({ status: 'Server je spuštěn' })
+})
+
+// Autentifikační routy
+app.post('/api/auth/register', async (req, res) => {
+  const { username, email, password, confirmPassword } = req.body
+
+  if (!username || !email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'Všechna pole jsou povinná',
+    })
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Hesla se neshodují',
+    })
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({
+      success: false,
+      message: 'Heslo musí mít alespoň 6 znaků',
+    })
+  }
+
+  const result = await registerUser(username, email, password)
+  res.status(result.success ? 201 : 400).json(result)
+})
+
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'E-mail a heslo jsou povinné',
+    })
+  }
+
+  const result = await loginUser(email, password)
+  res.status(result.success ? 200 : 401).json(result)
+})
+
+app.get('/api/auth/me', authMiddleware, async (req: AuthenticatedRequest, res) => {
+  res.json({
+    success: true,
+    user: req.user,
+  })
 })
 
 app.get('/api/channels', (req, res) => {
@@ -43,27 +96,50 @@ app.get('/api/messages/:channel', (req, res) => {
   res.json(channelMessages)
 })
 
+// Socket.io middleware pro autentifikaci
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token
+
+  if (!token) {
+    return next(new Error('Chybí autentifikační token'))
+  }
+
+  const decoded = verifyToken(token)
+
+  if (!decoded) {
+    return next(new Error('Neplatný token'))
+  }
+
+  socket.data.userId = decoded.userId
+  next()
+})
+
 // Socket.io events
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.id}`)
+  console.log(`Uživatel připojen: ${socket.id}`)
 
   // User joins
-  socket.on('user:join', (userData) => {
-    const userId = uuidv4()
-    users.set(socket.id, {
-      id: userId,
-      username: userData.username,
-      socketId: socket.id,
-      status: 'online',
-    })
+  socket.on('user:join', async (userData) => {
+    const userId = socket.data.userId
+    const dbUser = await getUserById(userId)
 
-    console.log(`${userData.username} joined`)
+    if (dbUser) {
+      await setUserStatus(userId, 'online')
+      users.set(socket.id, {
+        id: userId,
+        username: dbUser.username,
+        socketId: socket.id,
+        status: 'online',
+      })
 
-    // Notify all users about new user
-    io.emit('user:joined', {
-      users: Array.from(users.values()),
-      message: `${userData.username} joined the server`,
-    })
+      console.log(`${dbUser.username} se připojil`)
+
+      // Oznamení všem uživatelům
+      io.emit('user:joined', {
+        users: Array.from(users.values()),
+        message: `${dbUser.username} se připojil na server`,
+      })
+    }
   })
 
   // Handle chat messages
@@ -156,20 +232,32 @@ io.on('connection', (socket) => {
   })
 
   // User disconnection
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     const user = users.get(socket.id)
     if (user) {
-      console.log(`${user.username} disconnected`)
+      await setUserStatus(user.id, 'offline')
+      console.log(`${user.username} se odpojil`)
       users.delete(socket.id)
 
       io.emit('user:left', {
         users: Array.from(users.values()),
-        message: `${user.username} left the server`,
+        message: `${user.username} opustil server`,
       })
     }
   })
 })
 
-server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`)
-})
+// Spuštění serveru
+async function startServer() {
+  try {
+    await initializeDatabase()
+    server.listen(PORT, () => {
+      console.log(`🚀 Server běží na portu ${PORT}`)
+    })
+  } catch (error) {
+    console.error('Chyba při spuštění serveru:', error)
+    process.exit(1)
+  }
+}
+
+startServer()

@@ -5,7 +5,7 @@ const SOCKET_URL = process.env.VITE_SOCKET_URL || 'http://localhost:3001'
 class SocketService {
   private socket: Socket | null = null
 
-  connect() {
+  connect(token?: string) {
     if (this.socket) return this.socket
 
     this.socket = io(SOCKET_URL, {
@@ -13,6 +13,9 @@ class SocketService {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       reconnectionAttempts: 5,
+      auth: {
+        token: token || localStorage.getItem('authToken') || '',
+      },
     })
 
     this.socket.on('connect', () => {
