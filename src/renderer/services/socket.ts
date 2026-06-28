@@ -196,6 +196,64 @@ class SocketService {
     this.socket?.on('dm:read:ack', callback)
   }
 
+  // DM Voice Call events
+  initiateDMCall(targetUserId: string) {
+    this.socket?.emit('dm:call:initiate', { targetUserId })
+  }
+
+  onDMCallIncoming(callback: (data: any) => void) {
+    this.socket?.on('dm:call:incoming', callback)
+  }
+
+  answerDMCall(callerId: string, answer: any) {
+    this.socket?.emit('dm:call:answer', { callerId, answer })
+  }
+
+  onDMCallAnswered(callback: (data: any) => void) {
+    this.socket?.on('dm:call:answered', callback)
+  }
+
+  endDMCall(targetUserId: string) {
+    this.socket?.emit('dm:call:end', { targetUserId })
+  }
+
+  onDMCallEnded(callback: (data: any) => void) {
+    this.socket?.on('dm:call:ended', callback)
+  }
+
+  rejectDMCall(callerId: string) {
+    this.socket?.emit('dm:call:reject', { callerId })
+  }
+
+  onDMCallRejected(callback: (data: any) => void) {
+    this.socket?.on('dm:call:rejected', callback)
+  }
+
+  // Screen share in DM
+  startDMScreenShare(targetUserId: string, stream: any) {
+    this.socket?.emit('dm:screen:share:start', { targetUserId, stream })
+  }
+
+  stopDMScreenShare(targetUserId: string) {
+    this.socket?.emit('dm:screen:share:stop', { targetUserId })
+  }
+
+  onDMScreenShareStarted(callback: (data: any) => void) {
+    this.socket?.on('dm:screen:share:started', callback)
+  }
+
+  onDMScreenShareStopped(callback: (data: any) => void) {
+    this.socket?.on('dm:screen:share:stopped', callback)
+  }
+
+  sendDMICECandidate(targetUserId: string, candidate: any) {
+    this.socket?.emit('dm:ice:candidate', { targetUserId, candidate })
+  }
+
+  onDMICECandidate(callback: (data: any) => void) {
+    this.socket?.on('dm:ice:candidate', callback)
+  }
+
   // Remove event listener
   off(event: string) {
     this.socket?.off(event)

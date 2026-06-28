@@ -416,6 +416,59 @@ io.on('connection', (socket) => {
     })
   })
 
+  // DM Voice Call events
+  socket.on('dm:call:initiate', (data) => {
+    const { targetUserId } = data
+    io.emit('dm:call:incoming', {
+      fromUserId: socket.data.userId,
+      toUserId: targetUserId,
+    })
+  })
+
+  socket.on('dm:call:answer', (data) => {
+    const { callerId, answer } = data
+    io.to(callerId).emit('dm:call:answered', {
+      answer,
+      answererId: socket.data.userId,
+    })
+  })
+
+  socket.on('dm:call:end', (data) => {
+    const { targetUserId } = data
+    io.to(targetUserId).emit('dm:call:ended', {
+      userId: socket.data.userId,
+    })
+  })
+
+  socket.on('dm:call:reject', (data) => {
+    const { callerId } = data
+    io.to(callerId).emit('dm:call:rejected', {
+      rejecterId: socket.data.userId,
+    })
+  })
+
+  socket.on('dm:ice:candidate', (data) => {
+    const { targetUserId, candidate } = data
+    io.to(targetUserId).emit('dm:ice:candidate', {
+      candidate,
+      from: socket.data.userId,
+    })
+  })
+
+  socket.on('dm:screen:share:start', (data) => {
+    const { targetUserId } = data
+    io.to(targetUserId).emit('dm:screen:share:started', {
+      userId: socket.data.userId,
+    })
+  })
+
+  socket.on('dm:screen:share:stop', (data) => {
+    const { targetUserId } = data
+    io.to(targetUserId).emit('dm:screen:share:stopped', {
+      userId: socket.data.userId,
+    })
+  })
+
   // Direct Message events
   socket.on('dm:send', (data) => {
     const { receiverId, content } = data

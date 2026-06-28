@@ -21,6 +21,78 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.dm-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.call-btn,
+.mute-btn,
+.screen-btn,
+.end-call-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.call-btn {
+  background-color: #43b581;
+  color: white;
+}
+
+.call-btn:hover {
+  background-color: #36a470;
+}
+
+.mute-btn,
+.screen-btn {
+  background-color: #40444b;
+  color: #dcddde;
+}
+
+.mute-btn:hover,
+.screen-btn:hover {
+  background-color: #535960;
+}
+
+.mute-btn.muted {
+  background-color: #f04747;
+  color: white;
+}
+
+.screen-btn.active {
+  background-color: #43b581;
+  color: white;
+}
+
+.end-call-btn {
+  background-color: #f04747;
+  color: white;
+  width: 45px;
+  height: 45px;
+}
+
+.end-call-btn:hover {
+  background-color: #d63031;
+}
+
+.call-duration {
+  color: #dcddde;
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 50px;
 }
 
 .user-header {
@@ -216,4 +288,47 @@
 .send-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.dm-call-container {
+  height: 300px;
+  background-color: #000;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #202225;
+}
+
+.video-wrapper {
+  position: relative;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-wrapper.remote {
+  grid-column: 1 / -1;
+}
+
+.video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-label {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.messages-container.minimized {
+  max-height: 200px;
 }

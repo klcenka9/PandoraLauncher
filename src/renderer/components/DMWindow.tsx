@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import '../styles/DMWindow.css'
 import { socketService } from '../services/socket'
+import { webrtcService } from '../services/webrtc'
 
 interface Message {
   id: string
@@ -37,7 +38,14 @@ export default function DMWindow({
   const [loading, setLoading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [inVoiceCall, setInVoiceCall] = useState(false)
+  const [callDuration, setCallDuration] = useState(0)
+  const [isMuted, setIsMuted] = useState(false)
+  const [isScreenSharing, setIsScreenSharing] = useState(false)
+  const localVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteVideoRef = useRef<HTMLVideoElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const callTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (selectedUser) {
@@ -163,6 +171,65 @@ export default function DMWindow({
     }
   }
 
+  const handleStartVoiceCall = async () => {
+    if (!selectedUser || inVoiceCall) return
+
+    try {
+      const stream = await webrtcService.getLocalStream(true, true)
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream
+      }
+
+      socketService.initiateDMCall(selectedUser.id)
+      setInVoiceCall(true)
+      setCallDuration(0)
+
+      if (callTimerRef.current) clearInterval(callTimerRef.current)
+      callTimerRef.current = setInterval(() => {
+        setCallDuration((prev) => prev + 1)
+      }, 1000)
+    } catch (error) {
+      console.error('Chyba při spuštění hovoru:', error)
+      alert('Nelze přistupovat ke kameře/mikrofonu')
+    }
+  }
+
+  const handleEndVoiceCall = () => {
+    webrtcService.stopLocalStream()
+    webrtcService.closeAllConnections()
+    socketService.endDMCall(selectedUser!.id)
+    setInVoiceCall(false)
+    setCallDuration(0)
+    setIsScreenSharing(false)
+    if (callTimerRef.current) clearInterval(callTimerRef.current)
+  }
+
+  const handleScreenShare = async () => {
+    if (!selectedUser || !inVoiceCall) return
+
+    try {
+      if (!isScreenSharing) {
+        const screenStream = await (navigator.mediaDevices as any).getDisplayMedia({
+          video: { cursor: 'always' },
+        })
+        socketService.startDMScreenShare(selectedUser.id, screenStream)
+        setIsScreenSharing(true)
+      } else {
+        webrtcService.stopScreenStream()
+        socketService.stopDMScreenShare(selectedUser.id)
+        setIsScreenSharing(false)
+      }
+    } catch (error) {
+      console.error('Chyba při sdílení obrazovky:', error)
+    }
+  }
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
   if (!selectedUser) {
     return (
       <div className="dm-window empty">
@@ -183,9 +250,63 @@ export default function DMWindow({
             <p className="status">{selectedUser.status}</p>
           </div>
         </div>
+        <div className="dm-actions">
+          {!inVoiceCall ? (
+            <button
+              className="call-btn"
+              onClick={handleStartVoiceCall}
+              title="Spustit hovor"
+            >
+              📞
+            </button>
+          ) : (
+            <>
+              <span className="call-duration">{formatTime(callDuration)}</span>
+              <button
+                className={`mute-btn ${isMuted ? 'muted' : ''}`}
+                onClick={() => setIsMuted(!isMuted)}
+                title={isMuted ? 'Zrušit ztlumení' : 'Ztlumit'}
+              >
+                🎤
+              </button>
+              <button
+                className={`screen-btn ${isScreenSharing ? 'active' : ''}`}
+                onClick={handleScreenShare}
+                title={isScreenSharing ? 'Zastavit sdílení' : 'Sdílet obrazovku'}
+              >
+                🖥️
+              </button>
+              <button
+                className="end-call-btn"
+                onClick={handleEndVoiceCall}
+                title="Ukončit hovor"
+              >
+                ☎️
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
-      <div className="messages-container">
+      {inVoiceCall && (
+        <div className="dm-call-container">
+          <div className="video-wrapper remote">
+            <video ref={remoteVideoRef} autoPlay className="video-element" />
+            <div className="video-label">{selectedUser.username}</div>
+          </div>
+          <div className="video-wrapper local">
+            <video
+              ref={localVideoRef}
+              autoPlay
+              muted
+              className="video-element"
+            />
+            <div className="video-label">Ty</div>
+          </div>
+        </div>
+      )}
+
+      <div className={`messages-container ${inVoiceCall ? 'minimized' : ''}`}>
         {loading ? (
           <div className="loading">Načítám zprávy...</div>
         ) : messages.length === 0 ? (
