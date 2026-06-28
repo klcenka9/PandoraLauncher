@@ -1,0 +1,85 @@
+.message-reactions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.reactions-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.reaction {
+  background-color: rgba(114, 137, 218, 0.2);
+  border: 1px solid #7289da;
+  border-radius: 12px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.reaction:hover {
+  background-color: rgba(114, 137, 218, 0.3);
+}
+
+.reaction.user-reacted {
+  background-color: #7289da;
+  border-color: #5b73c2;
+  color: white;
+}
+
+.reaction.user-reacted .count {
+  color: white;
+}
+
+.emoji {
+  font-size: 16px;
+}
+
+.count {
+  font-size: 12px;
+  color: #7289da;
+  font-weight: 600;
+  min-width: 14px;
+  text-align: center;
+}
+
+.reaction.user-reacted .count {
+  color: white;
+}
+
+.add-reaction {
+  position: relative;
+}
+
+.add-btn {
+  background-color: rgba(114, 137, 218, 0.2);
+  border: 1px solid #7289da;
+  border-radius: 12px;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: #7289da;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-btn:hover {
+  background-color: rgba(114, 137, 218, 0.3);
+}
+
+.add-btn:active {
+  transform: scale(0.95);
+}
