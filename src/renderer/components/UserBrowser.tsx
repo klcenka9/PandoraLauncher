@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '../styles/UserBrowser.css'
+import { API_URL } from '../services/api'
 
 interface User {
   id: string
@@ -27,10 +28,10 @@ export default function UserBrowser({ token, currentUserId }: UserBrowserProps) 
     setLoading(true)
     try {
       const [usersRes, requestsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/users', {
+        fetch(`${API_URL}/api/users`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch('http://localhost:3001/api/friends/sent', {
+        fetch(`${API_URL}/api/friends/sent`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ])
@@ -55,7 +56,7 @@ export default function UserBrowser({ token, currentUserId }: UserBrowserProps) 
 
   const handleSendFriendRequest = async (targetUserId: string) => {
     try {
-      const response = await fetch('http://localhost:3001/api/friends/request', {
+      const response = await fetch(`${API_URL}/api/friends/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

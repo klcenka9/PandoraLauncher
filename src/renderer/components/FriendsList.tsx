@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '../styles/FriendsList.css'
+import { API_URL } from '../services/api'
 
 interface Friend {
   id: string
@@ -28,10 +29,10 @@ export default function FriendsList({ token, onSelectFriend }: FriendsListProps)
   const loadFriends = async () => {
     try {
       const [friendsRes, requestsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/friends/list', {
+        fetch(`${API_URL}/api/friends/list`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch('http://localhost:3001/api/friends/pending', {
+        fetch(`${API_URL}/api/friends/pending`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ])
@@ -48,7 +49,7 @@ export default function FriendsList({ token, onSelectFriend }: FriendsListProps)
 
   const handleAcceptRequest = async (requesterId: string) => {
     try {
-      const response = await fetch('http://localhost:3001/api/friends/accept', {
+      const response = await fetch(`${API_URL}/api/friends/accept`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +68,7 @@ export default function FriendsList({ token, onSelectFriend }: FriendsListProps)
 
   const handleDeclineRequest = async (requesterId: string) => {
     try {
-      const response = await fetch('http://localhost:3001/api/friends/decline', {
+      const response = await fetch(`${API_URL}/api/friends/decline`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +89,7 @@ export default function FriendsList({ token, onSelectFriend }: FriendsListProps)
     if (!window.confirm('Opravdu chceš odstranit tohoto přítele?')) return
 
     try {
-      const response = await fetch('http://localhost:3001/api/friends/remove', {
+      const response = await fetch(`${API_URL}/api/friends/remove`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

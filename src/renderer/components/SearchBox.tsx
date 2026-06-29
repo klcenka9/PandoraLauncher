@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '../styles/SearchBox.css'
+import { API_URL } from '../services/api'
 
 interface SearchResult {
   id: string
@@ -40,7 +41,7 @@ export default function SearchBox({
       const endpoint =
         searchType === 'messages' ? '/api/search/messages' : '/api/search/users'
       const response = await fetch(
-        `http://localhost:3001${endpoint}?q=${encodeURIComponent(query)}`,
+        `${API_URL}${endpoint}?q=${encodeURIComponent(query)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

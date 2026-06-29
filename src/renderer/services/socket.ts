@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client'
 
-const SOCKET_URL = process.env.VITE_SOCKET_URL || 'http://localhost:3001'
+const SOCKET_URL = process.env.VITE_SOCKET_URL || 'https://netchat-claude-production.up.railway.app'
 
 class SocketService {
   private socket: Socket | null = null

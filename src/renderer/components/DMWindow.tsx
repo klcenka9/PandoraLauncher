@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import '../styles/DMWindow.css'
 import { socketService } from '../services/socket'
 import { webrtcService } from '../services/webrtc'
+import { API_URL } from '../services/api'
 
 interface Message {
   id: string
@@ -93,7 +94,7 @@ export default function DMWindow({
     setLoading(true)
     try {
       const response = await fetch(
-        `http://localhost:3001/api/dm/${selectedUser.id}`,
+        `${API_URL}/api/dm/${selectedUser.id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -114,7 +115,7 @@ export default function DMWindow({
     if (!selectedUser) return
 
     try {
-      await fetch(`http://localhost:3001/api/dm/${selectedUser.id}/read`, {
+      await fetch(`${API_URL}/api/dm/${selectedUser.id}/read`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -131,7 +132,7 @@ export default function DMWindow({
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/dm/${selectedUser.id}`,
+        `${API_URL}/api/dm/${selectedUser.id}`,
         {
           method: 'POST',
           headers: {

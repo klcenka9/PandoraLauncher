@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '../styles/VoiceChannels.css'
+import { API_URL } from '../services/api'
 
 interface VoiceChannel {
   id: string
@@ -28,7 +29,7 @@ export default function VoiceChannels({ token, onSelectChannel }: VoiceChannelsP
   const loadChannels = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:3001/api/voice-channels', {
+      const response = await fetch(`${API_URL}/api/voice-channels`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -49,7 +50,7 @@ export default function VoiceChannels({ token, onSelectChannel }: VoiceChannelsP
 
     setCreating(true)
     try {
-      const response = await fetch('http://localhost:3001/api/voice-channels', {
+      const response = await fetch(`${API_URL}/api/voice-channels`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

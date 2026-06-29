@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import '../styles/UserProfile.css'
+import { API_URL } from '../services/api'
 
 interface User {
   id: string
@@ -37,7 +38,7 @@ export default function UserProfile({
 
   const loadUserProfile = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
+      const response = await fetch(`${API_URL}/api/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
@@ -55,7 +56,7 @@ export default function UserProfile({
 
   const handleSaveProfile = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/users/profile', {
+      const response = await fetch(`${API_URL}/api/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

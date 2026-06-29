@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import '../styles/AuthPage.css'
+import { API_URL } from '../services/api'
 
 interface RegisterPageProps {
   onRegisterSuccess: (token: string, username: string, userId: string) => void
@@ -34,7 +35,7 @@ export default function RegisterPage({
     setLoading(true)
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
