@@ -4,13 +4,16 @@ WORKDIR /app
 
 # Copy backend
 COPY backend/package*.json ./
-RUN npm install --production
+RUN npm install
 
 COPY backend/src ./src
 COPY backend/tsconfig.json ./
 
 # Build TypeScript
 RUN npm run build
+
+# Remove devDependencies after build
+RUN npm prune --production
 
 EXPOSE 3001
 
