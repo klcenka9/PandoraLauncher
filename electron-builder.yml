@@ -3,7 +3,10 @@ productName: Pandora Launcher
 directories:
   buildResources: assets
   output: release
-publish: null
+publish:
+  provider: github
+  owner: klcenka9
+  repo: PandoraLauncher
 
 linux:
   target:

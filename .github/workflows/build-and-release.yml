@@ -41,7 +41,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-builds
-          path: release/*.exe
+          path: |
+            release/*.exe
+            release/*.blockmap
+            release/latest.yml
 
   build-linux:
     runs-on: ubuntu-latest
@@ -68,7 +71,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-builds
-          path: release/*.AppImage
+          path: |
+            release/*.AppImage
+            release/*.blockmap
+            release/latest-linux.yml
 
   release:
     needs: [build-windows, build-linux]
@@ -106,7 +112,11 @@ jobs:
           tag_name: ${{ steps.tag.outputs.tag_name }}
           files: |
             artifacts/windows/*.exe
+            artifacts/windows/*.blockmap
+            artifacts/windows/latest.yml
             artifacts/linux/*.AppImage
+            artifacts/linux/*.blockmap
+            artifacts/linux/latest-linux.yml
           body: |
             # Pandora Launcher Release
 

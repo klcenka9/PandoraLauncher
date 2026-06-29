@@ -4,6 +4,10 @@
   "description": "Discord-like desktop application with calling, messaging, and screen sharing",
   "main": "src/main/main.js",
   "homepage": "./",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/klcenka9/PandoraLauncher.git"
+  },
   "scripts": {
     "dev": "electron-dev",
     "build-main": "tsc -p tsconfig.main.json",
@@ -15,6 +19,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "socket.io-client": "^4.7.2",
