@@ -2,7 +2,12 @@ appId: com.pandoralauncher.app
 productName: Pandora Launcher
 directories:
   buildResources: assets
-  output: dist
+  output: release
+publish: null
+
+linux:
+  target:
+    - AppImage
 
 files:
   - from: .
