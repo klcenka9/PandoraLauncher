@@ -25,15 +25,15 @@ export interface ICECandidate {
 }
 
 export const validateOffer = (offer: RTCSignal): boolean => {
-  return offer && offer.type === 'offer' && offer.sdp !== undefined
+  return !!(offer && offer.type === 'offer' && offer.sdp !== undefined)
 }
 
 export const validateAnswer = (answer: RTCSignal): boolean => {
-  return answer && answer.type === 'answer' && answer.sdp !== undefined
+  return !!(answer && answer.type === 'answer' && answer.sdp !== undefined)
 }
 
 export const validateCandidate = (candidate: ICECandidate): boolean => {
-  return (
+  return !!(
     candidate &&
     candidate.candidate &&
     candidate.sdpMLineIndex !== undefined &&

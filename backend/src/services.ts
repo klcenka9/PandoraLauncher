@@ -460,7 +460,7 @@ export async function searchMessages(
   }
 
   sql += ` ORDER BY created_at DESC LIMIT ?`
-  params.push(limit)
+  params.push(String(limit))
 
   return await db.all(sql, params)
 }
@@ -487,7 +487,7 @@ export async function searchDMs(
   ]
 
   sql += ` ORDER BY created_at DESC LIMIT ?`
-  params.push(limit)
+  params.push(String(limit))
 
   return await db.all(sql, params)
 }
