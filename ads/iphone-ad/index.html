@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>iPhone 17 Pro — Titan. Reimagined.</title>
+<style>
+  :root {
+    --bg: #000;
+    --fg: #f5f5f7;
+    --muted: #86868b;
+    --accent: #0a84ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
+  }
+  #canvas-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+  }
+  canvas { display: block; }
+
+  .scroll-spacer {
+    position: relative;
+    height: 500vh;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  #text-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  section.beat {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 8vh;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  section.beat.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .eyebrow {
+    font-size: clamp(14px, 1.6vw, 18px);
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  h1.headline {
+    font-size: clamp(36px, 7vw, 96px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    background: linear-gradient(180deg, #fff 0%, #d0d0d5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  p.sub {
+    margin-top: 18px;
+    font-size: clamp(16px, 2.2vw, 28px);
+    color: var(--muted);
+    max-width: 700px;
+  }
+  .specs {
+    margin-top: 28px;
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .spec {
+    font-size: clamp(13px, 1.4vw, 16px);
+    color: var(--fg);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 8px 16px;
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+  }
+  .cta {
+    margin-top: 36px;
+    display: inline-block;
+    pointer-events: auto;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 17px;
+    padding: 14px 32px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cta:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 30px rgba(10,132,255,0.45);
+  }
+
+  #hero-top {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    padding: 24px 0;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    color: var(--fg);
+    mix-blend-mode: difference;
+  }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 60px 20px 80px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), #5ac8fa);
+    z-index: 6;
+    width: 0%;
+    transition: width 0.05s linear;
+  }
+</style>
+</head>
+<body>
+
+<div id="hero-top"> APPLE</div>
+<div class="progress-bar" id="progress"></div>
+
+<div id="canvas-wrap"></div>
+
+<div class="scroll-spacer"></div>
+
+<div id="text-overlay">
+  <section class="beat" id="beat-1">
+    <div class="eyebrow">iPhone 17 Pro</div>
+    <h1 class="headline">Titan.<br/>Reimagined.</h1>
+    <p class="sub">Vyřezáno z jednoho kusu titanu. Poháněno čipem A19 Pro.<br/>Nejvýkonnější iPhone, jaký jsme kdy postavili.</p>
+  </section>
+
+  <section class="beat" id="beat-2">
+    <div class="eyebrow">Kamera Pro</div>
+    <h1 class="headline">Vidí víc.<br/>Cítí víc.</h1>
+    <p class="sub">Nový 48MP senzor s pětinásobným optickým zoomem zachytí každý detail — i ten, který okem nevidíte.</p>
+  </section>
+
+  <section class="beat" id="beat-3">
+    <div class="eyebrow">Výkon</div>
+    <h1 class="headline">Rychlost,<br/>která nečeká.</h1>
+    <div class="specs">
+      <div class="spec">A19 Pro chip</div>
+      <div class="spec">120Hz ProMotion</div>
+      <div class="spec">Wi-Fi 7</div>
+      <div class="spec">USB-C 3.2</div>
+    </div>
+  </section>
+
+  <section class="beat" id="beat-4">
+    <div class="eyebrow">iPhone 17 Pro</div>
+    <h1 class="headline">Tvůj další<br/>velký krok.</h1>
+    <p class="sub">Od 32 990 Kč nebo na splátky. Výkup starého iPhonu se započítá okamžitě.</p>
+    <a class="cta" href="#">Koupit</a>
+  </section>
+</div>
+
+<footer>© 2026 Apple Inc. Všechna práva vyhrazena. Tato stránka je ukázková 3D reklama vytvořená pomocí Three.js.</footer>
+
+<script type="module">
+import * as THREE from "./vendor/three.module.min.js";
+
+const wrap = document.getElementById("canvas-wrap");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+wrap.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.Fog(0x000000, 6, 16);
+
+const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 0, 7);
+
+// --- Lighting: Apple-style dramatic studio lighting ---
+const keyLight = new THREE.SpotLight(0xffffff, 8, 30, Math.PI / 6, 0.4, 1.2);
+keyLight.position.set(4, 6, 5);
+scene.add(keyLight);
+
+const rimLight = new THREE.SpotLight(0x4aa8ff, 6, 30, Math.PI / 5, 0.5, 1);
+rimLight.position.set(-5, 2, -4);
+scene.add(rimLight);
+
+const fillLight = new THREE.PointLight(0xffffff, 1.2, 20);
+fillLight.position.set(0, -3, 4);
+scene.add(fillLight);
+
+scene.add(new THREE.AmbientLight(0x222233, 0.6));
+
+// --- Phone body built from primitives ---
+const phone = new THREE.Group();
+
+function roundedBoxGeometry(w, h, d, r, s) {
+  const shape = new THREE.Shape();
+  const x = -w / 2, y = -h / 2;
+  shape.moveTo(x, y + r);
+  shape.lineTo(x, y + h - r);
+  shape.quadraticCurveTo(x, y + h, x + r, y + h);
+  shape.lineTo(x + w - r, y + h);
+  shape.quadraticCurveTo(x + w, y + h, x + w, y + h - r);
+  shape.lineTo(x + w, y + r);
+  shape.quadraticCurveTo(x + w, y, x + w - r, y);
+  shape.lineTo(x + r, y);
+  shape.quadraticCurveTo(x, y, x, y + r);
+  return new THREE.ExtrudeGeometry(shape, {
+    depth: d,
+    bevelEnabled: true,
+    bevelThickness: 0.03,
+    bevelSize: 0.03,
+    bevelSegments: s || 6,
+    curveSegments: 24,
+  });
+}
+
+const bodyGeo = roundedBoxGeometry(2.0, 4.1, 0.32, 0.42);
+const bodyMat = new THREE.MeshPhysicalMaterial({
+  color: 0x3a3a3e,
+  metalness: 0.9,
+  roughness: 0.28,
+  clearcoat: 0.6,
+  clearcoatRoughness: 0.2,
+});
+const body = new THREE.Mesh(bodyGeo, bodyMat);
+body.position.z = -0.16;
+phone.add(body);
+
+const screenGeo = roundedBoxGeometry(1.86, 3.96, 0.02, 0.34, 4);
+const screenMat = new THREE.MeshPhysicalMaterial({
+  color: 0x05050a,
+  metalness: 0.1,
+  roughness: 0.05,
+  clearcoat: 1,
+  emissive: 0x0a1830,
+  emissiveIntensity: 0.4,
+});
+const screen = new THREE.Mesh(screenGeo, screenMat);
+screen.position.z = 0.02;
+phone.add(screen);
+
+// camera bump / lenses
+const lensGroup = new THREE.Group();
+const lensPositions = [[-0.32, 1.45], [0.1, 1.45], [-0.32, 1.07]];
+lensPositions.forEach(([lx, ly]) => {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(0.16, 0.025, 16, 32),
+    new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.95, roughness: 0.2 })
+  );
+  ring.position.set(lx, ly, -0.32);
+  lensGroup.add(ring);
+  const glass = new THREE.Mesh(
+    new THREE.CircleGeometry(0.14, 32),
+    new THREE.MeshPhysicalMaterial({ color: 0x0a0a14, metalness: 0.2, roughness: 0.05, clearcoat: 1 })
+  );
+  glass.position.set(lx, ly, -0.335);
+  lensGroup.add(glass);
+});
+phone.add(lensGroup);
+
+scene.add(phone);
+phone.rotation.x = 0.15;
+
+// Reflective floor for that Apple "infinite stage" look
+const floorGeo = new THREE.PlaneGeometry(40, 40);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 0.6, roughness: 0.15 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -2.4;
+scene.add(floor);
+
+// --- Resize ---
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// --- Scroll-driven camera & phone animation (Apple keynote style) ---
+const beats = [...document.querySelectorAll("section.beat")];
+const progressBar = document.getElementById("progress");
+
+function scrollProgress() {
+  const total = document.body.scrollHeight - window.innerHeight;
+  return total > 0 ? window.scrollY / total : 0;
+}
+
+function updateScene() {
+  const p = scrollProgress();
+  progressBar.style.width = `${p * 100}%`;
+
+  // map progress 0..1 across 4 beats
+  const stage = p * (beats.length - 1);
+
+  // phone rotates a full 360 + tilts as you scroll
+  phone.rotation.y = stage * Math.PI * 1.1;
+  phone.rotation.x = 0.15 + Math.sin(stage * 1.3) * 0.12;
+  phone.position.y = -0.2 + Math.sin(stage * 2) * 0.15;
+
+  // camera dollies in/out per beat
+  const camZ = 7 - Math.sin(stage * Math.PI) * 1.5;
+  camera.position.z = camZ;
+  camera.position.x = Math.sin(stage * 0.8) * 0.6;
+
+  // show/hide text beats based on scroll position
+  beats.forEach((b, i) => {
+    const dist = Math.abs(stage - i);
+    b.classList.toggle("visible", dist < 0.5);
+  });
+
+  // light sweep
+  keyLight.position.x = 4 + Math.sin(stage * 1.5) * 2;
+}
+
+window.addEventListener("scroll", updateScene, { passive: true });
+updateScene();
+
+// --- Render loop ---
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  phone.rotation.z = Math.sin(t * 0.4) * 0.02;
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
