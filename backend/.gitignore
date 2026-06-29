@@ -1,6 +1,8 @@
 node_modules/
 dist/
 *.log
+*.db
+pandora.db
 .DS_Store
 .env
 .env.local
